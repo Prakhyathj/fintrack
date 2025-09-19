@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validate PIN - FinTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Root Variables */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
+            --font-color-light: rgba(255, 255, 255, 0.9);
+            --font-color-dark: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: bubbleFloat 20s infinite ease-in-out alternate;
+        }
+
+        @keyframes bubbleFloat {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+            50% { transform: translate(30px, -50px) scale(1.1); opacity: 0.8; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+        }
+
+        .pin-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: var(--glass-shadow);
+            width: 100%;
+            max-width: 500px;
+            animation: slideInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--info-gradient);
+            border-radius: 24px 24px 0 0;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .pin-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .pin-header h2 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .pin-header p {
+            font-weight: 400;
+            color: var(--font-color-light);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        /* New PIN input style */
+        .pin-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+        
+        .pin-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            caret-color: white;
+            transition: all 0.3s ease;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+        .pin-input:focus {
+            background: transparent;
+            border-color: rgba(40, 167, 69, 0.6);
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+            outline: none;
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="pin-card">
+        <div class="pin-header">
+            <h2>Welcome Back!</h2>
+            <p>Please enter your 4-digit PIN to access your dashboard.</p>
+        </div>
+        <form id="pinValidationForm">
+            <div class="mb-4 d-flex justify-content-center pin-input-group">
+                <input type="password" class="pin-input" id="pin1" required autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="1">
+                <input type="password" class="pin-input" id="pin2" required autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="1">
+                <input type="password" class="pin-input" id="pin3" required autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="1">
+                <input type="password" class="pin-input" id="pin4" required autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="1">
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success" id="validatePinBtn">
+                    Verify PIN <i class="fas fa-unlock-alt ms-2"></i>
+                </button>
+            </div>
+            <p class="text-center text-danger mt-3" id="pinError" style="display:none;">Incorrect PIN. Please try again.</p>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pinValidationForm = document.getElementById('pinValidationForm');
+            const pinError = document.getElementById('pinError');
+            const pinInputs = document.querySelectorAll('.pin-input');
+
+            // Auto-focus the first input on load
+            pinInputs[0].focus();
+
+            // Handle moving focus to the next input field
+            pinInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    if (this.value.length === this.maxLength && index < pinInputs.length - 1) {
+                        pinInputs[index + 1].focus();
+                    }
+                });
+
+                // Handle backspace to move focus to the previous input
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+                        pinInputs[index - 1].focus();
+                    }
+                });
+            });
+
+            // Handle form submission
+            pinValidationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const enteredPin = Array.from(pinInputs).map(input => input.value).join('');
+                
+                const userString = localStorage.getItem('fintrack_user');
+                const userData = userString ? JSON.parse(userString) : null;
+                
+                pinError.style.display = 'none';
+
+                if (!userData || !userData.pin) {
+                    console.error("User data or PIN not found. Redirecting to login.");
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                if (enteredPin === userData.pin) {
+                    document.getElementById('validatePinBtn').innerHTML = '<i class="fas fa-check"></i> PIN Validated';
+                    document.getElementById('validatePinBtn').disabled = true;
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    pinError.style.display = 'block';
+                    pinInputs.forEach(input => input.value = '');
+                    pinInputs[0].focus();
+                    setTimeout(() => {
+                        pinError.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

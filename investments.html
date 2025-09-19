@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Investments - FinTrack</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+        <style>
+            /* Root Variables */
+            :root {
+                --primary-gradient: linear-gradient(
+                    135deg,
+                    #667eea 0%,
+                    #764ba2 100%
+                );
+                --glass-bg: linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.2),
+                    rgba(255, 255, 255, 0.1)
+                );
+                --glass-bg-light: linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.25),
+                    rgba(255, 255, 255, 0.15)
+                );
+                --glass-border: rgba(255, 255, 255, 0.2);
+                --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                --glass-shadow-hover: 0 20px 60px 0 rgba(31, 38, 135, 0.5);
+                --transition-smooth: all 0.4s
+                    cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                --transition-fast: all 0.2s ease-out;
+                --success-glow: rgba(40, 167, 69, 0.4);
+                --danger-glow: rgba(244, 67, 54, 0.25);
+                --info-glow: rgba(0, 123, 255, 0.25);
+            }
+
+            /* General Styling */
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Poppins", sans-serif;
+                font-weight: 400;
+                color: white;
+            }
+
+            .dashboard-body {
+                background: var(--primary-gradient);
+                min-height: 100vh;
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            .dashboard-body::before {
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image:
+                    radial-gradient(
+                        circle at 20% 80%,
+                        rgba(255, 255, 255, 0.1) 0%,
+                        transparent 50%
+                    ),
+                    radial-gradient(
+                        circle at 80% 20%,
+                        rgba(255, 255, 255, 0.08) 0%,
+                        transparent 50%
+                    ),
+                    radial-gradient(
+                        circle at 40% 40%,
+                        rgba(255, 255, 255, 0.06) 0%,
+                        transparent 50%
+                    ),
+                    radial-gradient(
+                        circle at 60% 70%,
+                        rgba(255, 255, 255, 0.04) 0%,
+                        transparent 50%
+                    );
+                animation: floatingParticles 20s infinite linear;
+                z-index: -1;
+            }
+
+            /* Navbar */
+            .navbar {
+                background: var(--glass-bg);
+                backdrop-filter: blur(25px);
+                border-bottom: 1px solid var(--glass-border);
+                box-shadow: var(--glass-shadow);
+                transition: var(--transition-smooth);
+            }
+
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: white !important;
+            }
+
+            .dashboard-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .dashboard-logo-icon {
+                width: 36px;
+                height: 36px;
+                background: linear-gradient(45deg, #fff, #a7e1f1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .dashboard-logo-icon::before {
+                content: "\f53a";
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #667eea;
+                font-size: 1.4rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Layout */
+            .dashboard-container {
+                display: flex;
+                min-height: 100vh;
+                padding-top: 76px;
+            }
+
+            .main-content {
+                margin-left: 280px;
+                padding: 30px;
+                width: calc(100% - 280px);
+                min-height: calc(100vh - 76px);
+                animation: slideInUp 0.8s ease-out;
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+            }
+
+            /* Sidebar */
+            .sidebar {
+                width: 280px;
+                background: var(--glass-bg);
+                backdrop-filter: blur(25px);
+                border-right: 1px solid var(--glass-border);
+                border-radius: 0 20px 20px 0;
+                padding: 20px 0;
+                position: fixed;
+                height: calc(100vh - 76px);
+                overflow-y: auto;
+                box-shadow: var(--glass-shadow);
+                transition: var(--transition-smooth);
+                z-index: 1000;
+                will-change: transform;
+            }
+
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .sidebar::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+            }
+            .sidebar::-webkit-scrollbar-thumb {
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.3),
+                    rgba(255, 255, 255, 0.2)
+                );
+                border-radius: 3px;
+                transition: var(--transition-fast);
+            }
+            .sidebar::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.5),
+                    rgba(255, 255, 255, 0.3)
+                );
+            }
+
+            .sidebar-menu {
+                padding: 0 16px;
+            }
+
+            .menu-item {
+                display: flex;
+                align-items: center;
+                padding: 14px 20px;
+                margin: 8px 0;
+                border-radius: 16px;
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: var(--transition-smooth);
+                font-weight: 500;
+                font-size: 1rem;
+                position: relative;
+                overflow: hidden;
+                backdrop-filter: blur(10px);
+                border: 1px solid transparent;
+                will-change: transform;
+            }
+
+            .menu-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+                transform: translateX(6px) scale(1.01);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .menu-item.active {
+                background: linear-gradient(
+                    135deg,
+                    rgba(40, 167, 69, 0.3),
+                    rgba(40, 167, 69, 0.2)
+                );
+                color: white;
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+                transform: translateX(5px);
+            }
+
+            .menu-item i {
+                margin-right: 12px;
+                width: 20px;
+                text-align: center;
+            }
+
+            /* Headers & Typography */
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: "Poppins", sans-serif;
+                font-weight: 700;
+            }
+
+            .section-header {
+                margin-bottom: 32px;
+                text-align: left;
+            }
+
+            .section-header h2 {
+                background: linear-gradient(
+                    135deg,
+                    #fff 0%,
+                    rgba(255, 255, 255, 0.8) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                font-weight: 800;
+                margin-bottom: 8px;
+                font-size: 2.2rem;
+                text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+                animation: slideInLeft 0.6s ease-out;
+            }
+
+            .section-header p {
+                color: rgba(255, 255, 255, 0.8);
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 400;
+                animation: slideInLeft 0.8s ease-out;
+            }
+
+            /* Glass Cards */
+            .glass-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(25px);
+                border: 1px solid var(--glass-border);
+                border-radius: 20px;
+                padding: 24px;
+                box-shadow: var(--glass-shadow);
+                transition: var(--transition-smooth);
+                position: relative;
+                overflow: hidden;
+                animation: slideInUp 0.6s ease-out;
+                will-change: transform;
+                color: white;
+            }
+
+            .glass-card:hover {
+                transform: translateY(-4px) scale(1.01);
+                box-shadow: var(--glass-shadow-hover);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+
+            .glass-card h4 {
+                color: white;
+                margin-bottom: 20px;
+                font-size: 1.25rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+            }
+
+            .glass-card h4 i {
+                margin-right: 8px;
+            }
+
+            /* Investment Portfolio Overview */
+            .portfolio-summary {
+                background: var(--glass-bg-light);
+                border: 2px solid var(--glass-border);
+                padding: 32px;
+                margin-bottom: 32px;
+            }
+
+            .portfolio-value {
+                font-size: 3rem;
+                font-weight: 900;
+                color: white;
+                text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+                margin-bottom: 12px;
+            }
+
+            .portfolio-change {
+                font-size: 1.2rem;
+                font-weight: 600;
+                padding: 8px 16px;
+                border-radius: 12px;
+                display: inline-block;
+                backdrop-filter: blur(10px);
+            }
+
+            .portfolio-change.positive {
+                background: rgba(40, 167, 69, 0.25);
+                color: #76e088;
+            }
+            .portfolio-change.negative {
+                background: rgba(244, 67, 54, 0.25);
+                color: #f44336;
+            }
+
+            /* Stock Cards */
+            .stock-card {
+                background: var(--glass-bg);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 16px;
+                transition: var(--transition-smooth);
+                cursor: pointer;
+                position: relative;
+            }
+
+            .stock-card:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--glass-shadow-hover);
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+
+            .stock-info {
+                flex-grow: 1;
+                overflow: hidden;
+            }
+
+            .stock-symbol {
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .stock-name {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.95rem;
+                margin-bottom: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .stock-price-container {
+                flex-shrink: 0;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            .stock-price {
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: white;
+            }
+
+            .stock-change {
+                font-size: 0.95rem;
+                font-weight: 600;
+                padding: 4px 8px;
+                border-radius: 8px;
+                margin-left: 12px;
+            }
+
+            .stock-change.positive {
+                background: rgba(40, 167, 69, 0.25);
+                color: #76e088;
+            }
+            .stock-change.negative {
+                background: rgba(244, 67, 54, 0.25);
+                color: #f44336;
+            }
+
+            /* AI Recommendations */
+            .ai-recommendation {
+                background: linear-gradient(
+                    135deg,
+                    rgba(102, 126, 234, 0.2),
+                    rgba(118, 75, 162, 0.1)
+                );
+                border: 1px solid rgba(102, 126, 234, 0.3);
+                border-radius: 16px;
+                padding: 24px;
+                margin-bottom: 16px;
+                position: relative;
+                overflow: hidden;
+                color: white;
+            }
+
+            .ai-recommendation p {
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            .ai-recommendation::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+            .ai-badge {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                display: inline-block;
+                margin-bottom: 12px;
+            }
+
+            .recommendation-text {
+                color: white;
+                font-weight: 500;
+                line-height: 1.6;
+                margin-bottom: 12px;
+            }
+
+            .recommendation-meta {
+                margin-bottom: 16px;
+            }
+
+            .recommendation-action {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 500;
+                transition: var(--transition-smooth);
+                cursor: pointer;
+                display: inline-block;
+                text-decoration: none;
+            }
+
+            .recommendation-action:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+            }
+
+            /* Loading States */
+            .loading-skeleton {
+                background: linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0.1) 100%
+                );
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s infinite;
+                border-radius: 8px;
+                height: 20px;
+                margin-bottom: 8px;
+            }
+
+            .loading-skeleton.wide {
+                width: 80%;
+            }
+            .loading-skeleton.narrow {
+                width: 60%;
+            }
+
+            /* Investment Form */
+            .investment-form {
+                background: transparent;
+                border: none;
+                border-radius: 16px;
+                padding: 0;
+            }
+
+            .form-control,
+            .form-select {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 12px;
+                color: white;
+                padding: 12px 16px;
+                font-size: 1rem;
+            }
+
+            .form-control:focus,
+            .form-select:focus {
+                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.4);
+                box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
+                color: white;
+            }
+
+            .form-control::placeholder {
+                color: rgba(255, 255, 255, 0.6);
+            }
+
+            .form-label {
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 500;
+                margin-bottom: 8px;
+            }
+            .refresh-btn {
+              color: white !important; /* make text white */
+              border: 1px solid rgba(255, 255, 255, 0.3);
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+              padding: 6px 14px;
+              font-weight: 500;
+              transition: var(--transition-smooth);
+            }
+
+            .refresh-btn:hover {
+              background: rgba(255, 255, 255, 0.2);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border: none;
+                border-radius: 12px;
+                padding: 12px 24px;
+                font-weight: 600;
+                transition: var(--transition-smooth);
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(135deg, #764ba2, #667eea);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            }
+
+            .stock-button {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                padding: 8px;
+                margin-top: 8px;
+                font-size: 0.8em;
+                color: white;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                width: 100%;
+            }
+
+            .stock-button:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Table Styling */
+            .table-responsive {
+                border-radius: 12px;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .table-dark {
+                --bs-table-bg: transparent;
+                color: white;
+            }
+
+            .table-dark th {
+                border-color: rgba(255, 255, 255, 0.2);
+                font-weight: 600;
+                padding: 16px;
+            }
+
+            .table-dark td {
+                border-color: rgba(255, 255, 255, 0.1);
+                padding: 16px;
+            }
+
+            /* New styles for table cells to handle long text */
+            .table-dark td:nth-child(1),
+            .table-dark td:nth-child(2) {
+                max-width: 100px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .holdings-actions .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+
+            /* Fix for dropdown options visibility */
+            .form-control option,
+            .form-select option {
+                background: #333;
+                color: #fff;
+            }
+
+            /* Fix for mobile dropdown on iOS */
+            @media screen and (-webkit-min-device-pixel-ratio: 0) {
+                select.form-control {
+                    -webkit-appearance: none;
+                }
+            }
+
+            /* Responsive Design */
+            @media (max-width: 992px) {
+                .table-responsive .d-none-lg {
+                    display: none;
+                }
+            }
+
+
+            @media (max-width: 768px) {
+                .dashboard-container {
+                    flex-direction: column;
+                    padding-top: 76px;
+                }
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    border-radius: 0;
+                    border-right: none;
+                    border-bottom: 1px solid var(--glass-border);
+                    padding: 16px 0;
+                }
+                .sidebar-menu {
+                    display: flex;
+                    overflow-x: auto;
+                    gap: 8px;
+                    padding: 0 16px;
+                }
+                .menu-item {
+                    white-space: nowrap;
+                    min-width: 120px;
+                    justify-content: center;
+                    margin: 0;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                }
+                .main-content {
+                    margin-left: 0;
+                    width: 100%;
+                    padding: 16px;
+                }
+                .section-header h2 {
+                    font-size: 1.8rem;
+                }
+                .portfolio-value {
+                    font-size: 2.2rem;
+                }
+
+                .table-responsive {
+                    overflow-x: auto;
+                }
+                .table-responsive .d-none-md {
+                    display: none;
+                }
+            }
+
+            /* Animations */
+            @keyframes floatingParticles {
+                0% {
+                    transform: translateY(0px) rotate(0deg);
+                }
+                50% {
+                    transform: translateY(-20px) rotate(180deg);
+                }
+                100% {
+                    transform: translateY(0px) rotate(360deg);
+                }
+            }
+
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px) scale(0.98);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            @keyframes slideInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes skeleton-loading {
+                0% {
+                    background-position: -200% 0;
+                }
+                100% {
+                    background-position: 200% 0;
+                }
+            }
+            .toast-notification {
+                transition: all 0.3s ease;
+                transform: translateX(400px);
+                position: fixed;
+                top: 100px;
+                right: 30px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                backdrop-filter: blur(20px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+            }
+
+            .toast-notification.success {
+                background: linear-gradient(
+                    135deg,
+                    rgba(40, 167, 69, 0.9),
+                    rgba(40, 167, 69, 0.7)
+                );
+                color: white;
+            }
+
+            .toast-notification.error {
+                background: linear-gradient(
+                    135deg,
+                    rgba(244, 67, 54, 0.9),
+                    rgba(244, 67, 54, 0.7)
+                );
+                color: white;
+            }
+
+            .toast-notification.warning {
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 193, 7, 0.9),
+                    rgba(255, 193, 7, 0.7)
+                );
+                color: white;
+            }
+
+            .loading-dots::after {
+                content: "...";
+                animation: loadingDots 1s steps(3, end) infinite;
+            }
+
+            @keyframes loadingDots {
+                0%,
+                20% {
+                    content: ".";
+                }
+                40% {
+                    content: "..";
+                }
+                60%,
+                100% {
+                    content: "...";
+                }
+            }
+        </style>
+    </head>
+
+    <body class="dashboard-body">
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="dashboard.html">
+                    <div class="dashboard-logo">FinTrack</div>
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3 text-light">
+                        <i class="fas fa-user-circle"></i> Welcome,
+                        <span id="userName">Prakhyath</span>
+                    </span>
+                    <a
+                        class="nav-link text-light"
+                        href="dashboard.html"
+                        id="logoutBtn"
+                    >
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <div class="sidebar-menu">
+                    <a
+                        href="dashboard.html"
+                        class="menu-item"
+                        data-section="overview"
+                    >
+                        <i class="fas fa-tachometer-alt"></i> Overview
+                    </a>
+                    <a
+                        href="analytics.html"
+                        class="menu-item"
+                        data-section="analytics"
+                    >
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </a>
+                    <a
+                        href="investments.html"
+                        class="menu-item active"
+                        data-section="investments"
+                    >
+                        <i class="fas fa-chart-line"></i> Investments
+                    </a>
+                    <a
+                        href="other-features.html"
+                        class="menu-item"
+                        data-section="other-features"
+                    >
+                        <i class="fas fa-tools"></i> Other Features
+                    </a>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-chart-line"></i>Investment
+                        Portfolio
+                    </h2>
+                    <p>
+                        Track your investments, get AI recommendations, and
+                        monitor market trends
+                    </p>
+                </div>
+
+                <!-- Portfolio Summary -->
+                <div class="glass-card portfolio-summary">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h3
+                                style="
+                                    color: rgba(255, 255, 255, 0.9);
+                                    margin-bottom: 16px;
+                                    font-size: 1.3rem;
+                                    font-weight: 600;
+                                "
+                            >
+                                <i class="fas fa-wallet me-2"></i>Total
+                                Portfolio Value
+                            </h3>
+                            <div class="portfolio-value" id="portfolioValue">
+                                ₹0.00
+                            </div>
+                            <div
+                                class="portfolio-change positive"
+                                id="portfolioChange"
+                            >
+                                <i class="fas fa-arrow-up me-1"></i>+0.00% Today
+                            </div>
+                            <div id="lastUpdated" class="text-white-50">
+                                Last Updated: Just now
+                            </div>
+                            <button
+                                class="btn btn-sm refresh-btn mt-3"
+                                onclick="investmentManager.loadAllData(true)"
+                            >
+                                <i class="fas fa-sync-alt"></i> Refresh Live
+                                Data
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="height: 200px">
+                                <canvas id="portfolioChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- AI Recommendations -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="glass-card">
+                            <h4>AI Investment Recommendations</h4>
+                            <div id="aiRecommendations">
+                                <!-- AI recommendations will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Watchlist -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="glass-card">
+                            <h4>
+                                <i class="fas fa-eye me-2"></i>Stock Watchlist
+                            </h4>
+                            <div id="stockWatchlist" class="mb-3">
+                                <!-- Stock watchlist will be loaded here -->
+                            </div>
+                            <div>
+                                <input
+                                    type="text"
+                                    id="stockSymbolInput"
+                                    class="form-control mb-2"
+                                    placeholder="Enter stock symbol (e.g., RELIANCE.NS)"
+                                />
+                                <button
+                                    class="btn btn-primary w-100"
+                                    onclick="addToWatchlist()"
+                                >
+                                    <i class="fas fa-plus me-2"></i>Add to
+                                    Watchlist
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Investment Actions -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="glass-card">
+                            <h4>
+                                <i class="fas fa-plus-circle me-2"></i>Record
+                                Investment
+                            </h4>
+                            <form
+                                class="investment-form"
+                                id="investmentForm"
+                                onsubmit="recordInvestment(event)"
+                            >
+                                <div class="mb-3">
+                                    <label class="form-label"
+                                        >Stock Symbol</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="investmentSymbol"
+                                        class="form-control"
+                                        placeholder="e.g., AAPL, RELIANCE.NS"
+                                        required
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label"
+                                        >Transaction Type</label
+                                    >
+                                    <select
+                                        id="investmentType"
+                                        class="form-select"
+                                        required
+                                    >
+                                        <option value="" class="hidden-option">
+                                            Select Type
+                                        </option>
+                                        <option value="buy">Buy</option>
+                                        <option value="sell">Sell</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input
+                                        type="number"
+                                        id="investmentQuantity"
+                                        class="form-control"
+                                        placeholder="Number of shares"
+                                        step="any"
+                                        required
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label"
+                                        >Price per Share (in ₹)</label
+                                    >
+                                    <input
+                                        type="number"
+                                        id="investmentPrice"
+                                        class="form-control"
+                                        placeholder="₹0.00"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary w-100"
+                                >
+                                    <i class="fas fa-save me-2"></i>Record
+                                    Transaction
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Holdings Table -->
+                    <div class="col-lg-12 mb-4">
+                        <div class="glass-card">
+                            <h4>
+                                <i class="fas fa-briefcase me-2"></i>Current
+                                Holdings
+                            </h4>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Company</th>
+                                            <th class="d-none d-md-table-cell">Quantity</th>
+                                            <th class="d-none d-lg-table-cell">Avg. Price</th>
+                                            <th>Current Price</th>
+                                            <th class="d-none d-lg-table-cell">P&L</th>
+                                            <th>% Change</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="holdingsTable">
+                                        <!-- Holdings will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toastNotification" class="toast-notification success">
+            <span id="toastMessage">Investment data loaded!</span>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <script>
+            /**
+             * The FinnhubService class handles all real-time financial data fetching.
+             */
+            class FinnhubService {
+                constructor() {
+                    this.apiKey = null; // Will be set after fetching config
+                    this.baseUrl = "https://finnhub.io/api/v1";
+                }
+
+                setApiKey(key) {
+                    this.apiKey = key;
+                }
+
+                async fetchApi(endpoint, params = {}) {
+                    if (!this.apiKey) {
+                        throw new Error("Finnhub API key is not configured.");
+                    }
+
+                    const url = new URL(`${this.baseUrl}${endpoint}`);
+                    url.searchParams.append("token", this.apiKey);
+                    for (const key in params) {
+                        url.searchParams.append(key, params[key]);
+                    }
+
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(
+                                `API returned status ${response.status}`,
+                            );
+                        }
+                        const data = await response.json();
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        return data;
+                    } catch (error) {
+                        console.error("Finnhub API call failed:", error);
+                        throw error;
+                    }
+                }
+                
+                async getMultipleQuotes(symbols) {
+                    const quotes = {};
+                    const promises = symbols.map(async (symbol) => {
+                        try {
+                            const data = await this.fetchApi("/quote", { symbol });
+                            if (data.c) {
+                                const profileData = await this.fetchApi("/stock/profile2", { symbol });
+                                quotes[symbol] = {
+                                    symbol,
+                                    name: profileData.name || symbol,
+                                    price: data.c,
+                                    change: data.d,
+                                    changePercent: data.dp,
+                                    pc: data.pc // Previous close
+                                };
+                            } else {
+                                console.warn(`No quote data for ${symbol}.`);
+                            }
+                        } catch (e) {
+                            console.error(`Failed to fetch ${symbol}:`, e);
+                        }
+                    });
+                    await Promise.all(promises);
+                    return quotes;
+                }
+            }
+
+            /**
+             * The GeminiDataService class handles all AI-powered insights.
+             */
+            class GeminiDataService {
+                constructor() {
+                    this.apiKey = null; // Will be set after fetching config
+                    this.apiUrl =
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+                    }
+
+                setApiKey(key) {
+                    this.apiKey = key;
+                }
+
+                async fetchGeminiApi(systemPrompt, userQuery) {
+                    if (!this.apiKey) {
+                        throw new Error("Gemini API key not configured.");
+                    }
+                    const finalApiUrl = `${this.apiUrl}?key=${this.apiKey}`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        generationConfig: {
+                            temperature: 0.4, // keep it focused
+                            maxOutputTokens: 300
+                        }
+                    };
+
+                    try {
+                        const response = await fetch(finalApiUrl, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload),
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`API returned status ${response.status}: ${errorText}`);
+                        }
+
+                        const result = await response.json();
+                        const candidate = result.candidates?.[0];
+
+                        if (candidate && candidate.content?.parts?.[0]?.text) {
+                            const contentText = candidate.content.parts[0].text.trim();
+                            // Split into recommendations by line
+                            return contentText.split("\n").filter(line => line.trim().length > 0).map(line => ({
+                                title: line.replace(/^- /, ""),   // strip "- " if Gemini formats as a list
+                                description: "",                  // keep minimal
+                                priority: "medium",
+                                action: "Review"
+                            }));
+                        } else {
+                            throw new Error("No content found in API response.");
+                        }
+                    } catch (error) {
+                        console.error("Gemini API call failed:", error);
+                        throw error;
+                    }
+                }
+
+                
+                async generatePortfolioRecommendations(holdings, watchlist) {
+                    const hasHoldings = Object.keys(holdings).length > 0;
+                    const hasWatchlist = watchlist.length > 0;
+
+                    let portfolioText = "The user has no holdings.";
+                    if (hasHoldings) {
+                        portfolioText = "Current Holdings:\n" + Object.values(holdings)
+                            .map(h => `- ${h.quantity.toFixed(2)} shares of ${h.symbol} (Average Cost: ₹${h.avgPrice.toFixed(2)})`)
+                            .join("\n");
+                    }
+
+                    let watchlistText = "The user has no watchlist items.";
+                    if (hasWatchlist) {
+                        watchlistText = "Watchlist:\n" + watchlist.map(s => `- ${s}`).join("\n");
+                    }
+                    
+                    const systemPrompt = `
+                    You are a concise financial analyst. 
+                    Give 2–3 sentence recommendations only. 
+                    Each should mention the stock symbol, a clear action (Buy, Hold, or Sell), and one short reason why. 
+                    Do not write generic advice like "diversify your portfolio". 
+                    Keep it professional, specific, and under 60 words each.`;
+
+                    
+                    let userQuery;
+                    if (hasHoldings) {
+                        userQuery = `Analyze my specific portfolio and watchlist. Give me direct advice. For example, should I sell some of my losing GOOGL shares? Is now a good time to buy more NVDA from my watchlist? Be specific and use the data provided.\n\n${portfolioText}\n\n${watchlistText}`;
+                    } else {
+                        userQuery = `I have no holdings. Based on my watchlist, which 1-2 stocks present the best potential entry points right now and why? Give specific reasons.\n\n${watchlistText}`;
+                    }
+
+                    try {
+                        return await this.fetchGeminiApi(systemPrompt, userQuery);
+                    } catch (e) {
+                        console.error("Gemini API call failed, using fallback.", e);
+                        return this.generateMockRecommendations();
+                    }
+                }
+
+                generateMockRecommendations() {
+                    return [
+                        {
+                            title: "AI Analysis Offline",
+                            description: "Could not generate live recommendations. Please check your API configuration or try again later.",
+                            priority: "High",
+                            action: "Refresh",
+                        }
+                    ];
+                }
+            }
+
+            class InvestmentManager {
+                constructor() {
+                    this.storageKey = "fintrack_investments";
+                    this.watchlistKey = "fintrack_watchlist";
+                    this.USD_TO_INR_RATE = 83.50;
+                    this.investments = this.loadInvestments();
+                    this.watchlist = this.loadWatchlist();
+                    this.finnhubService = new FinnhubService();
+                    this.geminiService = new GeminiDataService();
+                    this.stockData = {};
+                    this.isUpdating = false;
+                    this.initialize();
+                }
+
+                loadInvestments() {
+                    const stored = localStorage.getItem(this.storageKey);
+                    return stored ? JSON.parse(stored) : [];
+                }
+
+                loadWatchlist() {
+                    const stored = localStorage.getItem(this.watchlistKey);
+                    return stored ? JSON.parse(stored) : [];
+                }
+
+                saveData(key, data) {
+                    localStorage.setItem(key, JSON.stringify(data));
+                }
+
+                saveInvestments() {
+                    this.saveData(this.storageKey, this.investments);
+                }
+
+                saveWatchlist() {
+                    this.saveData(this.watchlistKey, this.watchlist);
+                }
+
+                async loadApiKeys() {
+                    try {
+                        const response = await fetch('/api/config');
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const config = await response.json();
+                        if (config.error) {
+                            throw new Error(config.error);
+                        }
+                        this.finnhubService.setApiKey(config.finnhubApiKey);
+                        this.geminiService.setApiKey(config.geminiApiKey);
+                    } catch (error) {
+                        console.error("CRITICAL: Could not load API keys.", error);
+                        this.showToast("Error: Could not configure API keys.", "error");
+                    }
+                }
+
+                async initialize() {
+                    this.showLoadingStates();
+                    await this.loadApiKeys();
+                    await this.loadAllData();
+                    this.updateUI();
+                }
+                
+                updateUI() {
+                    this.updatePortfolioSummary();
+                    this.updateWatchlist();
+                    this.updateHoldings();
+                    this.generateAIRecommendations();
+                }
+
+                showLoadingStates() {
+                    document.getElementById("stockWatchlist").innerHTML = this.createLoadingSkeleton(3);
+                    document.getElementById("aiRecommendations").innerHTML = this.createLoadingSkeleton(2);
+                }
+
+                createLoadingSkeleton(count) {
+                    return Array.from({ length: count }, () => `
+                        <div class="mb-3">
+                            <div class="loading-skeleton wide"></div>
+                            <div class="loading-skeleton narrow"></div>
+                        </div>`).join("");
+                }
+
+                async loadAllData(isRefresh = false) {
+                    if (this.isUpdating) return;
+                    this.isUpdating = true;
+                    if (isRefresh) this.showToast("Fetching live market data...", "info");
+
+                    try {
+                        const allSymbols = [...new Set([
+                            ...this.watchlist,
+                            ...this.investments.map(inv => inv.symbol)
+                        ])].filter(s => s && s.trim() !== "");
+
+                        if (allSymbols.length > 0) {
+                            this.stockData = await this.finnhubService.getMultipleQuotes(allSymbols);
+                        }
+                        
+                        this.updateLastUpdatedTime();
+                        if (isRefresh) {
+                            this.showToast("Live market data loaded successfully!", "success");
+                            this.updateUI();
+                        }
+                    } catch (error) {
+                        console.error("Error loading stock data:", error);
+                        this.showToast(`API Error: ${error.message}`, "error");
+                    } finally {
+                        this.isUpdating = false;
+                    }
+                }
+
+
+                updateLastUpdatedTime() {
+                    const lastUpdatedElement = document.getElementById("lastUpdated");
+                    const now = new Date();
+                    lastUpdatedElement.textContent = `Last Updated: ${now.toLocaleString("en-US", { timeStyle: 'medium' })}`;
+                }
+
+                updatePortfolioSummary() {
+                    let totalValue = 0;
+                    let totalChange = 0;
+
+                    const holdings = this.calculateHoldings();
+                    Object.values(holdings).forEach((holding) => {
+                        const stockInfo = this.stockData[holding.symbol];
+                        const currentPrice = (stockInfo ? stockInfo.price : holding.avgPrice / this.USD_TO_INR_RATE) * this.USD_TO_INR_RATE;
+                        const previousClose = (stockInfo ? stockInfo.pc : holding.avgPrice / this.USD_TO_INR_RATE) * this.USD_TO_INR_RATE;
+
+                        const currentValue = holding.quantity * currentPrice;
+                        const previousValue = holding.quantity * previousClose;
+                        
+                        totalValue += currentValue;
+                        totalChange += (currentValue - previousValue);
+                    });
+
+                    const openingValue = totalValue - totalChange;
+                    const changePercent = openingValue > 0 ? (totalChange / openingValue) * 100 : 0;
+
+                    this.animateValue("portfolioValue", totalValue, "₹");
+
+                    const changeElement = document.getElementById("portfolioChange");
+                    const isPositive = totalChange >= 0;
+                    changeElement.className = `portfolio-change ${isPositive ? "positive" : "negative"}`;
+                    changeElement.innerHTML = `<i class="fas fa-arrow-${isPositive ? "up" : "down"} me-1"></i>${isPositive ? "+" : ""}${changePercent.toFixed(2)}% Today`;
+
+                    this.createPortfolioChart(holdings);
+                }
+
+                createPortfolioChart(holdings) {
+                    const ctx = document.getElementById("portfolioChart").getContext("2d");
+                    const labels = Object.keys(holdings);
+                    const data = Object.values(holdings).map((holding) => {
+                        const currentPriceUSD = this.stockData[holding.symbol]?.price || (holding.avgPrice / this.USD_TO_INR_RATE);
+                        return holding.quantity * (currentPriceUSD * this.USD_TO_INR_RATE);
+                    });
+
+                    if (window.portfolioChart instanceof Chart) window.portfolioChart.destroy();
+
+                    window.portfolioChart = new Chart(ctx, {
+                        type: "doughnut",
+                        data: {
+                            labels,
+                            datasets: [{
+                                data,
+                                backgroundColor: this.generateChartColors(labels.length),
+                                borderWidth: 0,
+                                hoverBorderWidth: 2,
+                                hoverBorderColor: "rgba(255, 255, 255, 0.8)",
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: "60%",
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    callbacks: {
+                                        label: (context) => {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                            return `${context.label}: ₹${context.parsed.toLocaleString("en-IN")} (${percentage}%)`;
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    });
+                }
+
+                updateWatchlist() {
+                    const container = document.getElementById("stockWatchlist");
+                    container.innerHTML = "";
+
+                    if (this.watchlist.length === 0) {
+                        container.innerHTML = `<p class="text-muted text-center" style="font-size: 0.9rem;">Your watchlist is empty. Add a stock symbol to begin.</p>`;
+                        return;
+                    }
+
+                    this.watchlist.forEach((symbol) => {
+                        const stock = this.stockData[symbol];
+                        const stockCard = document.createElement("div");
+                        stockCard.className = "stock-card";
+
+                        if (!stock || stock.price === 0) {
+                            stockCard.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="stock-info">
+                                        <div class="stock-symbol">${symbol}</div>
+                                        <div class="stock-name text-white-50">Data not available</div>
+                                    </div>
+                                    <div class="stock-price-container"><div class="stock-price">N/A</div></div>
+                                </div>
+                                <button class="stock-button mt-1 bg-transparent text-danger" onclick="investmentManager.removeFromWatchlist(event, '${symbol}')"><i class="fas fa-trash"></i> Remove</button>`;
+                        } else {
+                            const priceInINR = stock.price * this.USD_TO_INR_RATE;
+                            const changeInINR = stock.change * this.USD_TO_INR_RATE;
+                            stockCard.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="stock-info">
+                                        <div class="stock-symbol">${stock.symbol}</div>
+                                        <div class="stock-name">${stock.name}</div>
+                                    </div>
+                                    <div class="stock-price-container">
+                                        <div class="stock-price">₹${priceInINR.toFixed(2)}</div>
+                                        <span class="stock-change ${stock.change >= 0 ? "positive" : "negative"}">${stock.change >= 0 ? "+" : ""}${changeInINR.toFixed(2)} (${stock.changePercent.toFixed(2)}%)</span>
+                                    </div>
+                                </div>
+                                <button class="stock-button mt-1 bg-transparent text-danger" onclick="investmentManager.removeFromWatchlist(event, '${stock.symbol}')"><i class="fas fa-trash"></i> Remove</button>`;
+                        }
+                        container.appendChild(stockCard);
+                    });
+                }
+
+                removeFromWatchlist(event, symbol) {
+                    event.stopPropagation();
+                    this.watchlist = this.watchlist.filter((item) => item !== symbol);
+                    this.saveWatchlist();
+                    this.updateWatchlist();
+                    this.generateAIRecommendations();
+                    this.showToast(`${symbol} removed from watchlist!`, "info");
+                }
+
+                calculateHoldings() {
+                    const holdings = {};
+                    this.investments.forEach((investment) => {
+                        if (!holdings[investment.symbol]) {
+                            holdings[investment.symbol] = { symbol: investment.symbol, quantity: 0, totalCost: 0 };
+                        }
+                        const holding = holdings[investment.symbol];
+                        if (investment.type === "buy") {
+                            holding.totalCost += investment.quantity * investment.price;
+                            holding.quantity += investment.quantity;
+                        } else if (investment.type === "sell") {
+                            const costPerShare = holding.totalCost / holding.quantity;
+                            holding.totalCost -= investment.quantity * costPerShare;
+                            holding.quantity -= investment.quantity;
+                        }
+                    });
+
+                    Object.keys(holdings).forEach((symbol) => {
+                        const holding = holdings[symbol];
+                        if (holding.quantity <= 1e-9) { // Threshold for floating point precision
+                            delete holdings[symbol];
+                        } else {
+                            holding.avgPrice = holding.totalCost / holding.quantity;
+                        }
+                    });
+                    return holdings;
+                }
+
+                updateHoldings() {
+                    const holdings = this.calculateHoldings();
+                    const tbody = document.getElementById("holdingsTable");
+                    tbody.innerHTML = "";
+
+                    if (Object.keys(holdings).length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No holdings found.</td></tr>';
+                        return;
+                    }
+
+                    Object.values(holdings).forEach((holding) => {
+                        const stock = this.stockData[holding.symbol];
+                        const currentPriceUSD = stock ? stock.price : (holding.avgPrice / this.USD_TO_INR_RATE);
+                        const currentPriceINR = currentPriceUSD * this.USD_TO_INR_RATE;
+                        
+                        const companyName = stock ? stock.name : holding.symbol;
+                        const investedValue = holding.quantity * holding.avgPrice;
+                        const currentValue = holding.quantity * currentPriceINR;
+                        const pnl = currentValue - investedValue;
+                        const pnlPercent = investedValue !== 0 ? (pnl / investedValue) * 100 : 0;
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${holding.symbol}</td>
+                            <td>${companyName}</td>
+                            <td class="d-none d-md-table-cell">${holding.quantity.toFixed(2)}</td>
+                            <td class="d-none d-lg-table-cell">₹${holding.avgPrice.toFixed(2)}</td>
+                            <td>₹${currentPriceINR.toFixed(2)}</td>
+                            <td class="d-none d-lg-table-cell ${pnl >= 0 ? "text-success" : "text-danger"}">₹${pnl.toFixed(2)}</td>
+                            <td class="${pnl >= 0 ? "text-success" : "text-danger"}">${pnl >= 0 ? "+" : ""}${pnlPercent.toFixed(2)}%</td>
+                            <td class="holdings-actions">
+                                <button class="btn btn-sm btn-outline-success" onclick="populateFormForAction('${holding.symbol}', 'buy')">Buy</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="populateFormForAction('${holding.symbol}', 'sell')">Sell</button>
+                            </td>`;
+                        tbody.appendChild(row);
+                    });
+                }
+
+                async generateAIRecommendations() {
+                    const container = document.getElementById("aiRecommendations");
+                    const holdings = this.calculateHoldings();
+                    
+                    if (!this.geminiService.apiKey) {
+                        container.innerHTML = '<p class="text-warning text-center" style="font-size: 0.9rem;">AI is offline. Please configure API keys in your server secrets.</p>';
+                        return;
+                    }
+
+                    if (Object.keys(holdings).length === 0 && this.watchlist.length === 0) {
+                        container.innerHTML = '<p class="text-muted text-center" style="font-size: 0.9rem;">Add investments or watchlist items to get personalized AI recommendations.</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = `<p class="text-muted text-center"><i class="fas fa-robot me-2"></i>Generating personalized insights...<span class="loading-dots"></span></p>`;
+
+                    try {
+                        const recommendations = await this.geminiService.generatePortfolioRecommendations(holdings, this.watchlist);
+                        container.innerHTML = "";
+                        if (!recommendations || recommendations.length === 0) {
+                            container.innerHTML = '<p class="text-muted text-center">No recommendations available.</p>';
+                            return;
+                        }
+                        recommendations.forEach((rec, index) => {
+                             setTimeout(() => {
+                                const recElement = document.createElement("div");
+                                recElement.className = "ai-recommendation";
+                                Object.assign(recElement.style, { opacity: "0", transform: "translateY(20px)", transition: "all 0.4s ease" });
+                                
+                                const priorityColor = rec.priority.toLowerCase() === "high" ? "danger" : rec.priority.toLowerCase() === "medium" ? "warning" : "info";
+
+                                recElement.innerHTML = `
+                                <div class="ai-badge">AI Insight <span class="badge bg-${priorityColor} ms-2 text-capitalize">${rec.priority}</span></div>
+                                <div class="recommendation-text"><strong>${rec.title}</strong><br>${rec.description}</div>
+                                <a href="#" class="recommendation-action">${rec.action} <i class="fas fa-arrow-right ms-1"></i></a>`;
+                                container.appendChild(recElement);
+                                setTimeout(() => {
+                                    recElement.style.opacity = "1";
+                                    recElement.style.transform = "translateY(0)";
+                                }, 50);
+                            }, index * 200);
+                        });
+                    } catch (error) {
+                        console.error("Error generating AI recommendations:", error);
+                        container.innerHTML = `<p class="text-warning text-center" style="font-size: 0.9rem;">Could not generate AI recommendations at this time.</p>`;
+                    }
+                }
+                
+                animateValue(elementId, targetValue, prefix = "") {
+                    const element = document.getElementById(elementId);
+                    const startValue = parseFloat(element.textContent.replace(/[₹,]/g, '')) || 0;
+                    const duration = 1000;
+                    const startTime = performance.now();
+
+                    const animate = (currentTime) => {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const currentValue = startValue + (targetValue - startValue) * easeOut;
+
+                        element.textContent = `${prefix}${currentValue.toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            element.textContent = `${prefix}${targetValue.toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                        }
+                    };
+                    requestAnimationFrame(animate);
+                }
+
+                generateChartColors(numColors) {
+                    const colors = ["rgba(102, 126, 234, 0.8)", "rgba(118, 75, 162, 0.8)", "rgba(79, 172, 254, 0.8)", "rgba(0, 242, 254, 0.8)", "rgba(250, 112, 154, 0.8)"];
+                    return colors.slice(0, numColors);
+                }
+
+                showToast(message, type = "success") {
+                    const toast = document.getElementById("toastNotification");
+                    document.getElementById("toastMessage").textContent = message;
+                    toast.className = `toast-notification ${type}`;
+                    toast.style.transform = "translateX(0)";
+                    setTimeout(() => {
+                        toast.style.transform = "translateX(400px)";
+                    }, 3000);
+                }
+            }
+
+            let investmentManager;
+            document.addEventListener("DOMContentLoaded", () => {
+                investmentManager = new InvestmentManager();
+            });
+
+            function addToWatchlist() {
+                const symbolInput = document.getElementById("stockSymbolInput");
+                const symbol = symbolInput.value.trim().toUpperCase();
+
+                if (!symbol) {
+                    investmentManager.showToast("Please enter a stock symbol", "error");
+                    return;
+                }
+
+                if (!investmentManager.watchlist.includes(symbol)) {
+                    investmentManager.watchlist.push(symbol);
+                    investmentManager.saveWatchlist();
+                    investmentManager.loadAllData(true);
+                } else {
+                    investmentManager.showToast("Stock already in watchlist", "warning");
+                }
+                symbolInput.value = "";
+            }
+
+            function recordInvestment(event) {
+                event.preventDefault();
+
+                const symbol = document.getElementById("investmentSymbol").value.trim().toUpperCase();
+                const type = document.getElementById("investmentType").value;
+                const quantity = parseFloat(document.getElementById("investmentQuantity").value);
+                const price = parseFloat(document.getElementById("investmentPrice").value);
+
+                if (!symbol || !type || !quantity || !price || quantity <= 0 || price <= 0) {
+                    investmentManager.showToast("Please fill all fields with valid numbers", "error");
+                    return;
+                }
+                
+                const holdings = investmentManager.calculateHoldings();
+                if (type === 'sell' && (!holdings[symbol] || holdings[symbol].quantity < quantity)) {
+                     investmentManager.showToast(`Not enough shares of ${symbol} to sell.`, "error");
+                     return;
+                }
+
+                const investment = { id: Date.now(), symbol, type, quantity, price, date: new Date().toISOString().split("T")[0] };
+                investmentManager.investments.push(investment);
+                investmentManager.saveInvestments();
+
+                if (!investmentManager.watchlist.includes(symbol)) {
+                    investmentManager.watchlist.push(symbol);
+                    investmentManager.saveWatchlist();
+                }
+
+                investmentManager.loadAllData(true);
+                investmentManager.showToast(`Transaction recorded for ${symbol}`, "success");
+                document.getElementById('investmentForm').reset();
+            }
+
+            function populateFormForAction(symbol, type) {
+                document.getElementById('investmentSymbol').value = symbol;
+                document.getElementById('investmentType').value = type;
+                document.getElementById('investmentQuantity').focus();
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,1270 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Other Features - FinTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        /* Root Variables */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            --glass-bg-light: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --glass-shadow-hover: 0 20px 60px 0 rgba(31, 38, 135, 0.5);
+            --transition-smooth: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --transition-fast: all 0.2s ease-out;
+            --success-glow: rgba(40, 167, 69, 0.4);
+            --danger-glow: rgba(244, 67, 54, 0.25);
+            --info-glow: rgba(0, 123, 255, 0.25);
+        }
+
+        /* General Styling */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+        }
+
+        .dashboard-body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .dashboard-body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+            animation: floatingParticles 20s infinite linear;
+            z-index: -1;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            transition: var(--transition-smooth);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .dashboard-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(45deg, #fff, #a7e1f1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-logo-icon::before {
+            content: '\f53a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+            font-size: 1.4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 76px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+            min-height: calc(100vh - 76px);
+            animation: slideInUp 0.8s ease-out;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid var(--glass-border);
+            border-radius: 0 20px 20px 0;
+            padding: 20px 0;
+            position: fixed;
+            height: calc(100vh - 76px);
+            overflow-y: auto;
+            box-shadow: var(--glass-shadow);
+            transition: var(--transition-smooth);
+            z-index: 1000;
+            will-change: transform;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2)); border-radius: 3px; transition: var(--transition-fast); }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3)); }
+
+        .sidebar-menu {
+            padding: 0 16px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border-radius: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            font-weight: 500;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+            will-change: transform;
+        }
+
+        .menu-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(6px) scale(1.01);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(40, 167, 69, 0.2));
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Headers & Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        .section-header {
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .section-header h2 {
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        .section-header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 400;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.6s ease-out;
+            will-change: transform;
+            color: white; /* Changed text color to white */
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: var(--glass-shadow-hover);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-card h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .glass-card h4 i {
+            margin-right: 8px;
+        }
+
+        /* AI Recommendations */
+        .ai-recommendation {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .ai-recommendation p {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .ai-recommendation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-text {
+            color: white;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-meta {
+            margin-bottom: 16px;
+        }
+
+        .recommendation-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .recommendation-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loading States */
+        .loading-skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 100%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+            height: 20px;
+            margin-bottom: 8px;
+        }
+
+        .loading-skeleton.wide { width: 80%; }
+        .loading-skeleton.narrow { width: 60%; }
+
+        /* Investment Form */
+        .investment-form {
+            background: transparent;
+            border: none;
+            border-radius: 16px;
+            padding: 0;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .stock-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .stock-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .table-dark {
+            --bs-table-bg: transparent;
+            color: white;
+        }
+
+        .table-dark th {
+            border-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            padding: 16px;
+        }
+
+        .table-dark td {
+            border-color: rgba(255, 255, 255, 0.1);
+            padding: 16px;
+        }
+
+        /* New styles for table cells to handle long text */
+        .table-dark td:nth-child(1),
+        .table-dark td:nth-child(2) {
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Fix for dropdown options visibility */
+        .form-control option {
+            background: #333;
+            color: #fff;
+        }
+
+        /* Fix for mobile dropdown on iOS */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            select.form-control {
+                -webkit-appearance: none;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; padding-top: 76px; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-radius: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+                padding: 16px 0;
+            }
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+                gap: 8px;
+                padding: 0 16px;
+            }
+            .menu-item {
+                white-space: nowrap;
+                min-width: 120px;
+                justify-content: center;
+                margin: 0;
+                padding: 12px 16px;
+                border-radius: 12px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 16px;
+            }
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            .portfolio-value {
+                font-size: 2.2rem;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+
+        /* Animations */
+        @keyframes floatingParticles {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0px) rotate(360deg); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .toast-notification {
+            transition: all 0.3s ease;
+            transform: translateX(400px);
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .toast-notification.success {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9), rgba(40, 167, 69, 0.7));
+            color: white;
+        }
+
+        .toast-notification.error {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(244, 67, 54, 0.7));
+            color: white;
+        }
+
+        .toast-notification.warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 193, 7, 0.7));
+            color: #333;
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: loadingDots 1s steps(3, end) infinite;
+        }
+
+        @keyframes loadingDots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            margin: 5% auto;
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            width: 80%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow-hover);
+            color: white;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 16px;
+        }
+
+        .modal-header h4 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        .close-button {
+            color: white;
+            font-size: 28px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .close-button:hover, .close-button:focus {
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .modal-body p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .citations {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .citations h6 {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .citations ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .citations li {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .citations a {
+            color: #a7e1f1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .citations a:hover {
+            color: white;
+        }
+
+        /* Chat UI Specific Styles */
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .chat-container::-webkit-scrollbar-thumb { background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2)); border-radius: 3px; }
+
+        .chat-bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 80%;
+            line-height: 1.5;
+            word-wrap: break-word;
+            font-weight: 400;
+        }
+
+        .chat-bubble.user {
+            background: #667eea;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            animation: fadeInRight 0.3s ease-in-out;
+        }
+
+        .chat-bubble.ai {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            align-self: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom-left-radius: 4px;
+            animation: fadeInLeft 0.3s ease-in-out;
+        }
+
+        .chat-input-container {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .score-card {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .score-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 90%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-info-glass {
+            background: rgba(13, 110, 253, 0.15);
+            border: 1px solid rgba(13, 110, 253, 0.2);
+            color: #a7e1f1;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Portfolio Health Score specific styles */
+        .health-score-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+
+        .health-score-circle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #76E088 0%,
+                #f44336 0%
+            );
+            transition: all 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .health-score-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--glass-bg-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(15px);
+        }
+
+        .health-score-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Savings and Budgeting Specific Styles */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            height: 24px;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-savings {
+            height: 100%;
+            width: 0%;
+            background: #76E088;
+            border-radius: 8px;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            color: white;
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding-right: 8px;
+        }
+
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <div class="dashboard-logo">
+                    FinTrack
+                </div>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3 text-light">
+                    <i class="fas fa-user-circle"></i> Welcome, <span id="userName">Prakhyath</span>
+                </span>
+                <a class="nav-link text-light" href="dashboard.html" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item" data-section="overview">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </a>
+                <a href="analytics.html" class="menu-item" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="investments.html" class="menu-item" data-section="investments">
+                    <i class="fas fa-chart-line"></i> Investments
+                </a>
+                
+                <a href="other-features.html" class="menu-item active" data-section="other-features">
+                    <i class="fas fa-tools"></i> Other Features
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section-header">
+                <h2>Other Features</h2>
+                <p>Explore additional AI tools for your financial journey</p>
+            </div>
+
+            <div class="row">
+                <!-- Financial News -->
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card">
+                        <h4>
+                            <i class="fas fa-newspaper me-2"></i>Financial News
+                        </h4>
+                        <div id="financialNews">
+                            <p class="text-muted text-center">Loading latest news...</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Portfolio Health Score -->
+                <div class="col-lg-4 mb-4">
+                  <div class="glass-card">
+                    <h4>
+                      <i class="fas fa-heartbeat me-2"></i>Portfolio Health Score
+                    </h4>
+                    <!-- Health Score Circle placeholder -->
+                    <div id="healthScore" class="mb-3">
+                      <p class="text-muted text-center">Calculating portfolio health...</p>
+                    </div>
+
+                    <!-- Insights placeholder -->
+                    <div id="healthScoreInsights">
+                      <p class="text-muted text-center">Insights will appear here shortly.</p>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Savings and Budgeting -->
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card">
+                        <h4>
+                            <i class="fas fa-piggy-bank me-2"></i>Savings &amp; Budgeting
+                        </h4>
+                        <div class="mb-3">
+                            <label for="savingsGoal" class="form-label">Monthly Savings Goal</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-light border-secondary">₹</span>
+                                <input type="number" id="savingsGoal" class="form-control" placeholder="e.g., 5000" oninput="updateProgress()">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="monthlyExpenses" class="form-label">Monthly Expenses</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent text-light border-secondary">₹</span>
+                                <input type="number" id="monthlyExpenses" class="form-control" placeholder="e.g., 15000" oninput="updateProgress()">
+                            </div>
+                        </div>
+                        <div id="progressDisplay">
+                            <p class="mb-2">Progress towards goal: <span id="progressText">0%</span></p>
+                            <div class="progress-container">
+                                <div class="progress-bar-savings" id="progressBar"></div>
+                            </div>
+                        </div>
+                        <hr class="border-secondary my-4">
+                        <div id="budgetingInsights">
+                            <p class="text-muted text-center">AI budgeting tips will appear here after you enter your numbers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Financial Q&A -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="glass-card">
+                        <h4>
+                            <i class="fas fa-comment-dots me-2"></i>AI Financial Q&amp;A
+                        </h4>
+                        <div id="chatWindow" class="chat-container">
+                            <div class="chat-bubble ai">Hello! I am your AI financial assistant. Ask me anything about finance or investing.</div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" id="chatInput" class="form-control" placeholder="Ask a question...">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastNotification" class="toast-notification success">
+        <span id="toastMessage">Feature loaded!</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        /**
+         * The GeminiDataService class handles all AI-powered insights.
+         */
+        class GeminiDataService {
+            constructor() {
+                // IMPORTANT: Paste your Gemini API key here to enable real AI features.
+                // If the key is not provided, the app will gracefully fall back to mock data.
+                this.apiKey = "AIzaSyDi72xCJNsWuob0XAx6D9WCo0dXTqL3wy0";
+                if (!this.apiKey) {
+                    console.warn("Gemini API key is not set. To enable Gemini API features, please add your key to the GeminiDataService class. The app will continue to use mock data for now.");
+                }
+                this.apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + this.apiKey;
+            }
+
+            async fetchGeminiApi(systemPrompt, userQuery, isGrounded = false, isStructured = false) {
+                if (!this.apiKey) {
+                    throw new Error("API key not provided.");
+                }
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                };
+
+                if (isGrounded) {
+                    payload.tools = [{ "google_search": {} }];
+                }
+
+                if (isStructured) {
+                    payload.generationConfig = {
+                        responseMimeType: "application/json",
+                    };
+                }
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API returned status ${response.status}: ${errorText}`);
+                    }
+
+                    const text = await response.text();
+                    if (!text) {
+                        throw new Error("API response was empty.");
+                    }
+
+                    const result = JSON.parse(text);
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        const contentText = candidate.content.parts[0].text;
+                        let sources = [];
+                        const groundingMetadata = candidate.groundingMetadata;
+                        if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                            sources = groundingMetadata.groundingAttributions.map(attr => ({
+                                uri: attr.web?.uri,
+                                title: attr.web?.title
+                            }));
+                        }
+
+                        if (isStructured) {
+                            try {
+                                return JSON.parse(contentText);
+                            } catch (e) {
+                                console.error('Failed to parse JSON from LLM:', e);
+                                throw new Error('Invalid JSON response from AI.');
+                            }
+                        } else {
+                            return { text: contentText, sources };
+                        }
+                    } else {
+                        throw new Error("No content found in API response.");
+                    }
+                } catch (error) {
+                    console.error('Gemini API call failed:', error);
+                    throw error;
+                }
+            }
+
+            async getFinancialNews() {
+                const systemPrompt = `
+                    You are a financial news summarizer. 
+                    Provide 3 recent financial headlines for the Indian stock market. 
+                    Each headline must have:
+                    - a short 'title'
+                    - a 'summary' (max 2 sentences)
+                    - a 'source'
+                    Return strictly as a JSON array of objects with "title", "summary", and "source".
+                `;
+
+                const userQuery = "Summarize the latest financial news in India today.";
+
+                try {
+                    // remove 'true' for grounding (no google_search tool)
+                    return await this.fetchGeminiApi(systemPrompt, userQuery, false, true);
+                } catch (e) {
+                    console.error("Gemini API call failed for news.", e);
+                    return [];
+                }
+            }
+
+
+            async getPortfolioHealthScore() {
+                const holdings = JSON.parse(localStorage.getItem('fintrack_investments')) || [];
+                if (holdings.length === 0) {
+                    return {
+                        score: 0,
+                        insights: "No holdings found. Please record investments to calculate a health score."
+                    };
+                }
+
+                const holdingsText = holdings.map(h => 
+                    `- ${h.quantity} shares of ${h.symbol} (₹${h.price} per share, ${h.type.toUpperCase()})`
+                ).join('\n');
+
+                const systemPrompt = "You are a financial analyst. Your task is to provide a portfolio health score and insights based on diversification, risk, and growth potential. The score must be an integer 0–100. Respond strictly as JSON with 'score' (number) and 'insights' (string, max 3 sentences).";
+                const userQuery = `Analyze this portfolio:\n${holdingsText}`;
+
+                try {
+                    return await this.fetchGeminiApi(systemPrompt, userQuery, false, true);
+                } catch (e) {
+                    console.error("Gemini API call failed for health score.", e);
+                    return {
+                        score: null,
+                        insights: "Unable to calculate portfolio health. Please try again later."
+                    };
+                }
+            }
+
+
+
+            async getChatResponse(chatHistory) {
+                const systemPrompt = "You are a friendly and knowledgeable AI financial assistant. Your goal is to answer questions about finance, investing, market trends, and personal budgeting. Keep your responses concise and easy to understand. Do not provide specific stock recommendations or legal advice. If you don't know the answer, politely state that you can't provide that information.";
+                const userQuery = chatHistory.map(item => `${item.role}: ${item.text}`).join('\n');
+
+                try {
+                    const response = await this.fetchGeminiApi(systemPrompt, userQuery);
+                    return { text: response.text, role: 'ai' };
+                } catch (e) {
+                    console.error("Chatbot error:", e);
+                    return { text: "I'm sorry, I'm currently unable to process your request. Please try again later.", role: 'ai' };
+                }
+            }
+
+            async getBudgetingInsights(savingsGoal, expenses) {
+                const systemPrompt = "You are an expert financial coach. Provide a single paragraph of actionable advice for a user's monthly budget based on their savings goal and current expenses. The advice should be encouraging and focus on practical steps. Do not use an overly formal tone or provide legal advice.";
+                const userQuery = `My monthly savings goal is ₹${savingsGoal} and my current monthly expenses are ₹${expenses}. Please provide some actionable advice on how I can better manage my budget to meet my goals.`;
+
+                try {
+                    const response = await this.fetchGeminiApi(systemPrompt, userQuery, false, false);
+                    return response.text;
+                } catch (e) {
+                    console.error("Gemini API call failed for budgeting insights, using mock data.", e);
+                    return "To improve your budgeting, consider tracking your expenses daily to identify areas where you can save. Look for small, recurring costs that add up over time, and try setting a weekly spending limit for non-essential items.";
+                }
+            }
+        }
+
+        const geminiDataService = new GeminiDataService();
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const messageElement = document.getElementById('toastMessage');
+
+            messageElement.textContent = message;
+            toast.className = `toast-notification ${type}`;
+            toast.style.transform = 'translateX(0)';
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(400px)';
+            }, 3000);
+        }
+
+        async function loadFinancialNews() {
+            const container = document.getElementById('financialNews');
+            try {
+                const news = await geminiDataService.getFinancialNews();
+                container.innerHTML = '';
+
+                if (news.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert-info-glass">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Unable to fetch financial news. Please try again later.
+                        </div>`;
+                    return;
+                }
+
+                news.forEach(item => {
+                    const newsCard = document.createElement('div');
+                    newsCard.className = 'glass-card mb-3';
+                    newsCard.innerHTML = `
+                        <h6><i class="fas fa-dot-circle me-2" style="color: #667eea;"></i>${item.title}</h6>
+                        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">${item.summary}</p>
+                        <small class="text-muted">Source: ${item.source}</small>
+                    `;
+                    container.appendChild(newsCard);
+                });
+            } catch (error) {
+                console.error("Failed to load financial news:", error);
+                container.innerHTML = `
+                    <div class="alert-info-glass">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Unable to fetch financial news. Please try again later.
+                    </div>`;
+            }
+        }
+
+        function updateProgress() {
+            const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
+            const monthlyExpenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
+            const progress = savingsGoal > 0 ? Math.min((savingsGoal / (monthlyExpenses + savingsGoal)) * 100, 100) : 0;
+
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress.toFixed(0)}%`;
+
+            // Instead of AI insights → show a simple static suggestion
+            const container = document.getElementById('budgetingInsights');
+            if (savingsGoal > 0 && monthlyExpenses > 0) {
+                if (progress >= 50) {
+                    container.innerHTML = `<p style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Great job! You're on track to meet your savings goal.</p>`;
+                } else {
+                    container.innerHTML = `<p style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">Try reducing non-essential expenses to improve savings progress.</p>`;
+                }
+            } else {
+                container.innerHTML = `<p class="text-muted text-center">Enter savings goal and expenses to see insights.</p>`;
+            }
+        }
+
+        async function loadBudgetingInsights(savingsGoal, expenses) {
+            const container = document.getElementById('budgetingInsights');
+            container.innerHTML = `<p class="text-muted text-center"><i class="fas fa-spinner fa-spin me-2"></i>Generating budgeting tips...</p>`;
+            try {
+                const insights = await geminiDataService.getBudgetingInsights(savingsGoal, expenses);
+                container.innerHTML = `<p style="font-size: 0.9rem; color: rgba(255,255,255,0.9);">${insights}</p>`;
+            } catch (error) {
+                container.innerHTML = `<div class="alert-info-glass">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Unable to load insights. Please try again.
+                </div>`;
+            }
+        }
+
+
+        let chatHistory = [];
+        let isTyping = false;
+        async function sendMessage() {
+            if (isTyping) return;
+
+            const chatInput = document.getElementById('chatInput');
+            const chatWindow = document.getElementById('chatWindow');
+            const userMessage = chatInput.value.trim();
+
+            if (userMessage === "") return;
+
+            chatHistory.push({ role: 'user', text: userMessage });
+
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.textContent = userMessage;
+            chatWindow.appendChild(userBubble);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            chatInput.value = '';
+
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'chat-bubble ai';
+            typingIndicator.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+            chatWindow.appendChild(typingIndicator);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            isTyping = true;
+
+            try {
+                const response = await geminiDataService.getChatResponse(chatHistory);
+                chatHistory.push(response);
+                typingIndicator.remove();
+
+                const aiBubble = document.createElement('div');
+                aiBubble.className = 'chat-bubble ai';
+                aiBubble.textContent = response.text;
+                chatWindow.appendChild(aiBubble);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            } catch (error) {
+                console.error("Chatbot error:", error);
+                typingIndicator.remove();
+                const errorBubble = document.createElement('div');
+                errorBubble.className = 'chat-bubble ai';
+                errorBubble.textContent = "I'm sorry, I'm currently unable to respond. Please check your API key.";
+                chatWindow.appendChild(errorBubble);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            } finally {
+                isTyping = false;
+            }
+        }
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFinancialNews();
+            loadHealthScore();
+        });
+    </script>
+</body></html>

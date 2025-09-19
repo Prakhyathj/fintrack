@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - FinTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            --glass-bg-light: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --glass-shadow-hover: 0 20px 60px 0 rgba(31, 38, 135, 0.5);
+            --transition-smooth: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; font-weight: 400; color: white; }
+        .dashboard-body { background: var(--primary-gradient); min-height: 100vh; overflow-x: hidden; position: relative; }
+        .dashboard-body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: floatingParticles 20s infinite linear; z-index: -1;
+        }
+        .dashboard-container { display: flex; min-height: 100vh; padding-top: 76px; }
+        .main-content { margin-left: 280px; padding: 30px; width: calc(100% - 280px); animation: slideInUp 0.8s ease-out; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; font-weight: 700; }
+        .section-header { margin-bottom: 24px; text-align: left; }
+        .section-header h2 {
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            font-weight: 800; margin-bottom: 8px; font-size: 2rem;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); animation: slideInLeft 0.6s ease-out;
+        }
+        .section-header p { color: rgba(255, 255, 255, 0.8); margin: 0; font-size: 1rem; animation: slideInLeft 0.8s ease-out; }
+        .navbar { background: var(--glass-bg); backdrop-filter: blur(25px); border-bottom: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+        .navbar-brand { font-size: 1.5rem; font-weight: 700; color: white !important; }
+        .dashboard-logo { display: flex; align-items: center; gap: 12px; }
+        .dashboard-logo-icon {
+            width: 36px; height: 36px; background: linear-gradient(45deg, #fff, #a7e1f1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin-right: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .dashboard-logo-icon::before { content: '\f53a'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #667eea; font-size: 1.4rem; }
+        .sidebar {
+            width: 280px; background: var(--glass-bg); backdrop-filter: blur(25px); border-right: 1px solid var(--glass-border);
+            padding: 20px 0; position: fixed; height: calc(100vh - 76px); overflow-y: auto; box-shadow: var(--glass-shadow); z-index: 1000;
+        }
+        .sidebar-menu { padding: 0 16px; }
+        .menu-item {
+            display: flex; align-items: center; padding: 14px 20px; margin: 8px 0; border-radius: 16px;
+            color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: var(--transition-smooth); font-weight: 500;
+        }
+        .menu-item:hover { color: white; background: rgba(255, 255, 255, 0.15); transform: translateX(6px) scale(1.01); }
+        .menu-item.active { background: linear-gradient(135deg, rgba(40, 167, 69, 0.3), rgba(40, 167, 69, 0.2)); color: white; transform: translateX(5px); }
+        .menu-item i { margin-right: 12px; width: 20px; text-align: center; }
+        .analytics-card, .kpi-card {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 24px; box-shadow: var(--glass-shadow); transition: var(--transition-smooth);
+            position: relative; overflow: hidden; animation: slideInUp 0.6s ease-out; color: white;
+        }
+        .analytics-card:hover, .kpi-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: var(--glass-shadow-hover); }
+        .analytics-card h4 { color: white; font-weight: 700; margin-bottom: 24px; font-size: 1.3rem; }
+        .chart-container { position: relative; height: 350px; }
+        .chart-container.small { height: 300px; }
+        .kpi-card { text-align: center; }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 20px 20px 0 0;
+        }
+        .kpi-card.positive::before { background: linear-gradient(90deg, #28a745, #20c997); }
+        .kpi-card.negative::before { background: linear-gradient(90deg, #dc3545, #c82333); }
+        .kpi-card.neutral::before { background: linear-gradient(90deg, #007bff, #0056b3); }
+        .kpi-value { font-size: 2.2rem; font-weight: 800; color: white; margin-bottom: 12px; }
+        .kpi-label { color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; font-weight: 500; }
+        .period-selector { display: flex; gap: 16px; margin-bottom: 32px; justify-content: center; flex-wrap: wrap; }
+        .period-btn {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px; padding: 12px 24px; font-size: 0.95rem; font-weight: 500; transition: all 0.3s ease;
+        }
+        .period-btn.active { background: linear-gradient(135deg, rgba(40, 167, 69, 0.4), rgba(40, 167, 69, 0.2)); border-color: rgba(40, 167, 69, 0.5); color: white; transform: translateY(-2px); }
+        .period-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.25); color: white; transform: translateY(-2px); }
+        .insights-card {
+             margin-bottom: 16px; padding: 24px; border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            transition: all 0.4s ease;
+        }
+        .insight-text { color: white; font-weight: 500; flex: 1; }
+        .no-data-state { text-align: center; padding: 60px 20px; color: rgba(255, 255, 255, 0.7); }
+        .no-data-state i { font-size: 4rem; margin-bottom: 24px; opacity: 0.4; }
+        .no-data-state h4 { color: rgba(255, 255, 255, 0.9); margin-bottom: 12px; }
+        @keyframes floatingParticles { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-radius: 0; border-right: none; border-bottom: 1px solid var(--glass-border); transform: none !important; }
+            .sidebar-menu { display: flex; overflow-x: auto; gap: 8px; padding: 0 16px; }
+            .menu-item { white-space: nowrap; min-width: 120px; justify-content: center; }
+            .main-content { margin-left: 0; width: 100%; padding: 16px; }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <div class="dashboard-logo">
+                    <div class="dashboard-logo-icon"></div>
+                    FinTrack
+                </div>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3 text-light">
+                    <i class="fas fa-user-circle"></i> Welcome, <span id="userName"></span>
+                </span>
+                <a class="nav-link text-light" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item" data-section="overview">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </a>
+                <a href="analytics.html" class="menu-item active" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="#" class="menu-item" data-section="investments">
+                    <i class="fas fa-chart-line"></i> Investments
+                </a>
+                <a href="#" class="menu-item" data-section="other-features">
+                    <i class="fas fa-tools"></i> Other Features
+                </a>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div id="analytics" class="content-section active">
+                <div class="section-header">
+                    <h2>Financial Analytics</h2>
+                    <p>Detailed insights into your spending patterns and financial trends</p>
+                </div>
+
+                <div class="period-selector">
+                    <button class="period-btn" data-period="7">Last 7 Days</button>
+                    <button class="period-btn active" data-period="30">Last 30 Days</button>
+                    <button class="period-btn" data-period="90">Last 3 Months</button>
+                    <button class="period-btn" data-period="365">Last Year</button>
+                </div>
+
+                <div class="row mb-4" id="kpiSection">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="kpi-card neutral">
+                            <div class="kpi-value" id="avgDailySpending">₹0</div>
+                            <div class="kpi-label">Avg Daily Spending</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="savingsRate">0%</div>
+                            <div class="kpi-label">Savings Rate</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="kpi-card neutral">
+                            <div class="kpi-value" id="biggestExpense">₹0</div>
+                            <div class="kpi-label" id="biggestExpenseCategory">Biggest Expense</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="kpi-card neutral">
+                            <div class="kpi-value" id="transactionCount">0</div>
+                            <div class="kpi-label">Total Transactions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-lg-8 mb-4">
+                        <div class="analytics-card">
+                            <h4>Income vs Expenses Trend</h4>
+                            <div class="chart-container">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mb-4">
+                        <div class="analytics-card">
+                            <h4>Expense Categories</h4>
+                            <div class="chart-container small">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h4>Smart Insights</h4>
+                    <div id="insightsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background: var(--glass-bg-light); color: white;">
+                <div class="modal-header" style="border-bottom: 1px solid var(--glass-border);">
+                    <h5 class="modal-title">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody"></div>
+                <div class="modal-footer" style="border-top: 1px solid var(--glass-border);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmActionButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class FinTrackAnalytics {
+            constructor() {
+                this.storageKey = 'fintrack_data_persistent';
+                this.currentPeriod = 30;
+                this.charts = {};
+                this.data = null;
+                this.initialize();
+            }
+
+            initialize() {
+                const userString = localStorage.getItem('fintrack_user');
+                const userData = userString ? JSON.parse(userString) : null;
+
+                if (!userData || !userData.hasOnboarded) {
+                    // window.location.href = 'index.html'; // Uncomment when index.html is available
+                    return;
+                }
+
+                document.getElementById('userName').textContent = userData.name;
+                
+                const storedData = localStorage.getItem(this.storageKey);
+                if (!storedData) {
+                    this.data = this.getDefaultData(userData.startingBalance);
+                } else {
+                    this.data = this.validateAndUpgradeData(JSON.parse(storedData));
+                }
+
+                this.setupEventListeners();
+                this.loadAnalytics();
+            }
+            
+            getDefaultData(startingBalance = 0) {
+                return {
+                    transactions: [
+                        { 
+                            id: 1, type: "income", amount: parseFloat(startingBalance) || 0, 
+                            description: "Initial Balance", date: new Date().toISOString().split('T')[0], 
+                            category: "Initial", isRecurring: false 
+                        }
+                    ],
+                    categories: {
+                        income: ['Salary', 'Freelance', 'Business', 'Investment', 'Bonus', 'Gift', 'Other', 'Initial'],
+                        expense: ['Food', 'Transportation', 'Shopping', 'Entertainment', 'Utilities', 'Healthcare', 'Education', 'Rent', 'Groceries', 'Insurance', 'Other']
+                    },
+                    settings: {
+                        currency: 'INR', dateFormat: 'DD/MM/YYYY', theme: 'default',
+                        startingBalance: parseFloat(startingBalance) || 0
+                    },
+                    version: '1.0.0'
+                };
+            }
+            
+            validateAndUpgradeData(data) {
+                const defaultData = this.getDefaultData(data.settings ? data.settings.startingBalance : 0);
+                const validatedData = {
+                    transactions: Array.isArray(data.transactions) ? data.transactions : defaultData.transactions,
+                    categories: data.categories || defaultData.categories,
+                    settings: data.settings || defaultData.settings,
+                    version: data.version || '1.0.0'
+                };
+                validatedData.transactions = validatedData.transactions.map(t => ({
+                    id: t.id || Date.now() + Math.random(),
+                    type: t.type || 'expense',
+                    amount: Number(t.amount) || 0,
+                    description: t.description || 'Unknown',
+                    date: t.date || new Date().toISOString().split('T')[0],
+                    category: t.category || 'Other',
+                    isRecurring: Boolean(t.isRecurring)
+                }));
+                return validatedData;
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.period-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.changePeriod(parseInt(e.target.dataset.period));
+                    });
+                });
+
+                document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showConfirmModal('Are you sure you want to logout? All your local data will be cleared.', () => {
+                        localStorage.clear();
+                        // window.location.href = 'index.html'; // Uncomment when index.html is available
+                        alert("Logged out! Redirect to index.html would happen here.");
+                    });
+                });
+            }
+            
+            showConfirmModal(message, onConfirm) {
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                document.getElementById('confirmModalBody').textContent = message;
+                const confirmButton = document.getElementById('confirmActionButton');
+                const newConfirmButton = confirmButton.cloneNode(true);
+                confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
+
+                newConfirmButton.addEventListener('click', () => {
+                    onConfirm();
+                    modal.hide();
+                });
+                modal.show();
+            }
+
+            changePeriod(days) {
+                this.currentPeriod = days;
+                document.querySelectorAll('.period-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (parseInt(btn.dataset.period) === days) {
+                        btn.classList.add('active');
+                    }
+                });
+                this.loadAnalytics();
+            }
+
+            loadAnalytics() {
+                const filteredTransactions = this.getFilteredTransactions();
+                
+                // Only count transactions that are not the initial balance for analytics
+                const actualTransactions = filteredTransactions.filter(t => t.category !== 'Initial' && t.description !== 'Initial Balance');
+
+                if (actualTransactions.length === 0) {
+                    this.showNoDataState();
+                    return;
+                }
+                
+                document.getElementById('kpiSection').style.display = 'flex'; // Make sure it's visible
+                this.updateKPIs(actualTransactions);
+                this.loadTrendChart(filteredTransactions); // Trend chart should show balance, so include initial
+                this.loadCategoryChart(actualTransactions);
+                this.generateInsights(actualTransactions);
+            }
+
+            getFilteredTransactions() {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - this.currentPeriod);
+                return this.data.transactions.filter(t => new Date(t.date) >= cutoffDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+
+            updateKPIs(transactions) {
+                const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                const avgDaily = this.currentPeriod > 0 ? totalExpenses / this.currentPeriod : 0;
+                this.animateValue('avgDailySpending', avgDaily, '₹', 'currency');
+
+                const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+                this.animateValue('savingsRate', savingsRate, '%', 'percentage');
+                document.getElementById('savingsRate').closest('.kpi-card').className = `kpi-card ${savingsRate >= 20 ? 'positive' : savingsRate >= 10 ? 'neutral' : 'negative'}`;
+
+                const expenses = transactions.filter(t => t.type === 'expense');
+                if (expenses.length > 0) {
+                    const biggest = expenses.reduce((max, t) => t.amount > max.amount ? t : max);
+                    this.animateValue('biggestExpense', biggest.amount, '₹', 'currency');
+                    document.getElementById('biggestExpenseCategory').textContent = biggest.category;
+                } else {
+                    document.getElementById('biggestExpense').textContent = '₹0';
+                    document.getElementById('biggestExpenseCategory').textContent = 'No Expenses';
+                }
+                this.animateValue('transactionCount', transactions.length, '', 'number');
+            }
+
+            animateValue(elementId, targetValue, prefix = '', type = 'number') {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                const duration = 800;
+                const startTime = performance.now();
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentValue = easeOut * targetValue;
+                    if (type === 'currency') {
+                        element.textContent = `${prefix}${Math.round(currentValue).toLocaleString('en-IN')}`;
+                    } else {
+                        element.textContent = `${Math.round(currentValue)}${prefix}`;
+                    }
+                    if (progress < 1) requestAnimationFrame(animate);
+                };
+                requestAnimationFrame(animate);
+            }
+
+            loadTrendChart(transactions) {
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                const dailyData = {};
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - this.currentPeriod);
+                for (let i = 0; i <= this.currentPeriod; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(date.getDate() + i);
+                    dailyData[date.toISOString().split('T')[0]] = { income: 0, expense: 0 };
+                }
+                transactions.forEach(t => { if (dailyData[t.date]) dailyData[t.date][t.type] += t.amount; });
+                
+                const labels = Object.keys(dailyData).map(date => new Date(date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }));
+                const incomeData = Object.values(dailyData).map(d => d.income);
+                const expenseData = Object.values(dailyData).map(d => d.expense);
+                
+                if (this.charts.trend) this.charts.trend.destroy();
+                this.charts.trend = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Income', data: incomeData, borderColor: '#4CAF50', backgroundColor: 'rgba(76, 175, 80, 0.1)', tension: 0.4, fill: true },
+                            { label: 'Expenses', data: expenseData, borderColor: '#f44336', backgroundColor: 'rgba(244, 67, 54, 0.1)', tension: 0.4, fill: true }
+                        ]
+                    },
+                    options: this.getCommonChartOptions()
+                });
+            }
+
+            loadCategoryChart(transactions) {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                const expenses = transactions.filter(t => t.type === 'expense');
+                if (expenses.length === 0) return this.showEmptyChart(ctx, 'No expenses in this period');
+                
+                const categoryData = {};
+                expenses.forEach(t => categoryData[t.category] = (categoryData[t.category] || 0) + t.amount);
+                
+                const labels = Object.keys(categoryData);
+                const data = Object.values(categoryData);
+                const backgroundColors = this.generateChartColors(labels.length);
+
+                if (this.charts.category) this.charts.category.destroy();
+                this.charts.category = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data, backgroundColor: backgroundColors, borderWidth: 0 }] },
+                    options: { ...this.getCommonChartOptions(), cutout: '60%' }
+                });
+            }
+            
+            generateInsights(transactions) {
+                const insightsContainer = document.getElementById('insightsContainer');
+                insightsContainer.innerHTML = '';
+                if (transactions.length < 1) {
+                     insightsContainer.innerHTML = `<div class="no-data-state" style="padding: 20px;"><p>Not enough data to generate insights.</p></div>`;
+                     return;
+                }
+                const insights = [];
+                const totalIncome = transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+                const totalExpenses = transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+                const savingsRate = totalIncome > 0 ? Math.round(((totalIncome-totalExpenses)/totalIncome)*100) : 0;
+                
+                if (savingsRate > 20) insights.push({ type: 'positive', text: `Excellent! Your savings rate is ${savingsRate}%.` });
+                else if (savingsRate < 5) insights.push({ type: 'negative', text: `Your savings rate is low at ${savingsRate}%. Review expenses.` });
+                
+                const expenses = transactions.filter(t=>t.type==='expense');
+                if (expenses.length > 0) {
+                    const categoryData = {};
+                    expenses.forEach(t=>categoryData[t.category]=(categoryData[t.category]||0)+t.amount);
+                    const sortedCategories = Object.entries(categoryData).sort((a,b)=>b[1]-a[1]);
+                    if (sortedCategories.length > 0) {
+                        const biggest = sortedCategories[0];
+                        insights.push({ type: 'neutral', text: `${biggest[0]} is your largest expense category.` });
+                    }
+                }
+
+                insights.forEach((insight, index) => {
+                    setTimeout(() => {
+                        const card = document.createElement('div');
+                        card.className = 'insights-card';
+                        card.style.borderLeft = `5px solid ${this.getInsightColor(insight.type)}`;
+                        card.innerHTML = `<div class="insight-text">${insight.text}</div>`;
+                        insightsContainer.appendChild(card);
+                    }, index * 100);
+                });
+            }
+
+            getInsightColor(type) {
+                if (type === 'positive') return '#4caf50';
+                if (type === 'negative') return '#f44336';
+                return '#667eea'; // neutral
+            }
+            
+            getCommonChartOptions() {
+                return {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: 'white', font: { size: 12 } } } },
+                    scales: {
+                        x: { ticks: { color: 'rgba(255,255,255,0.8)' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { ticks: { color: 'rgba(255,255,255,0.8)', callback: (v) => `₹${v.toLocaleString('en-IN')}` }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                };
+            }
+
+            generateChartColors(num) {
+                const colors = ['#667eea', '#764ba2', '#4facfe', '#00f2fe', '#fa709a', '#fee140', '#4caf50', '#ff9800'];
+                return Array.from({ length: num }, (_, i) => colors[i % colors.length]);
+            }
+            
+            showNoDataState() {
+                document.getElementById('kpiSection').style.display = 'none';
+                this.showEmptyChart(document.getElementById('trendChart').getContext('2d'), 'No Data For This Period');
+                this.showEmptyChart(document.getElementById('categoryChart').getContext('2d'), 'No Data For This Period');
+                document.getElementById('insightsContainer').innerHTML = `<div class="no-data-state" style="padding: 20px;"><p>Add transactions on the dashboard to see your analytics.</p></div>`;
+            }
+
+            showEmptyChart(ctx, message) {
+                const container = ctx.canvas.parentElement;
+                // Clear previous chart instance if it exists
+                if(this.charts[ctx.canvas.id.replace('Chart','')]) {
+                    this.charts[ctx.canvas.id.replace('Chart','')].destroy();
+                }
+                // Set the HTML to show the message
+                container.innerHTML = `<div class="no-data-state" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;"><i class="fas fa-chart-area"></i><h4>${message}</h4></div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new FinTrackAnalytics();
+            const currentPath = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

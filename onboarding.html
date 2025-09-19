@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding - FinTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Root Variables */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
+            --font-color-light: rgba(255, 255, 255, 0.9);
+            --font-color-dark: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* Animated Background */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: bubbleFloat 20s infinite ease-in-out alternate;
+        }
+
+        body::before {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            animation-duration: 25s;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 150px;
+            height: 150px;
+            bottom: 15%;
+            right: 10%;
+            animation-duration: 22s;
+            animation-delay: 2s;
+        }
+
+        @keyframes bubbleFloat {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+            50% { transform: translate(30px, -50px) scale(1.1); opacity: 0.8; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+        }
+
+        .onboarding-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: var(--glass-shadow);
+            width: 100%;
+            max-width: 500px;
+            animation: slideInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .onboarding-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--info-gradient);
+            border-radius: 24px 24px 0 0;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .onboarding-header h2 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .onboarding-header p {
+            font-weight: 400;
+            color: var(--font-color-light);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            color: var(--info-gradient);
+            margin-bottom: 20px;
+            animation: bounceIn 1s ease-out;
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(13, 110, 253, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.1); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(13, 110, 253, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+        }
+
+        .form-label {
+            color: var(--font-color-light);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--font-color-light);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            width: 100%;
+        }
+
+        /* FIX: Style for filled inputs to prevent the white background */
+        .form-control:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+            -webkit-text-fill-color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: transparent !important;
+        }
+        
+        .form-control:focus {
+            background: transparent !important;
+            border-color: rgba(40, 167, 69, 0.6) !important;
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3) !important;
+            color: var(--font-color-light) !important;
+            outline: none;
+        }
+        
+        .btn-success {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            width: 100%;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(40, 167, 69, 0.6);
+        }
+        
+        .btn-success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-success:hover::before {
+            left: 100%;
+        }
+
+        /* Progress Indicator Styles */
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: var(--info-gradient);
+            width: 40px;
+            box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+        }
+
+        /* PIN Form Specific Styles */
+        .pin-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            caret-color: white;
+            transition: all 0.3s ease;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+        
+        .pin-input:focus {
+            background: transparent;
+            border-color: rgba(40, 167, 69, 0.6);
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+            outline: none;
+        }
+
+        .form-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .onboarding-card { padding: 32px 24px; border-radius: 20px; }
+            .onboarding-header h2 { font-size: 2rem; }
+            .onboarding-header p { font-size: 1rem; }
+            .welcome-icon { font-size: 2.5rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .onboarding-card { padding: 24px 20px; }
+            .form-control { padding: 16px 20px; height: 55px; }
+            .form-label { font-size: 0.9rem; }
+            .onboarding-header h2 { font-size: 1.8rem; }
+            .onboarding-header p { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-card">
+        <div class="onboarding-header">
+            <div class="welcome-icon mb-3">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <h2 id="onboardingTitle">Let's get you started!</h2>
+            <p id="onboardingSubtitle">Tell us a bit about yourself to get started with FinTrack.</p>
+        </div>
+
+        <div class="progress-indicator">
+            <div class="progress-step active" id="progressStep1"></div>
+            <div class="progress-step" id="progressStep2"></div>
+        </div>
+        
+        <div class="form-section active" id="onboardingSection">
+            <form id="onboardingForm">
+                <div class="mb-4">
+                    <label for="userName" class="form-label">What's your full name?</label>
+                    <input type="text" class="form-control" id="userName" required autocomplete="off">
+                </div>
+                <div class="mb-4">
+                    <label for="bankBalance" class="form-label">Current bank balance (₹)</label>
+                    <input type="number" class="form-control" id="bankBalance" required min="0" value="0" autocomplete="off">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success" id="onboardingBtn">
+                        Next <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-section" id="pinSection">
+            <form id="pinForm">
+                <div class="mb-4">
+                    <label for="pinInput" class="form-label">Create a 4-digit PIN</label>
+                    <input type="password" class="form-control" id="pinInput" required minlength="4" maxlength="4" pattern="[0-9]{4}" autocomplete="new-password">
+                </div>
+                <div class="mb-4">
+                    <label for="confirmPinInput" class="form-label">Confirm your PIN</label>
+                    <input type="password" class="form-control" id="confirmPinInput" required minlength="4" maxlength="4" pattern="[0-9]{4}" autocomplete="new-password">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success" id="pinBtn">
+                        Create PIN <i class="fas fa-lock ms-2"></i>
+                    </button>
+                </div>
+                <p class="text-center text-danger mt-3" id="pinError" style="display:none;">PINs do not match. Please try again.</p>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const onboardingSection = document.getElementById('onboardingSection');
+            const pinSection = document.getElementById('pinSection');
+            const onboardingForm = document.getElementById('onboardingForm');
+            const pinForm = document.getElementById('pinForm');
+            const onboardingBtn = document.getElementById('onboardingBtn');
+            const pinBtn = document.getElementById('pinBtn');
+            const pinError = document.getElementById('pinError');
+            const progressStep1 = document.getElementById('progressStep1');
+            const progressStep2 = document.getElementById('progressStep2');
+            const onboardingTitle = document.getElementById('onboardingTitle');
+            const onboardingSubtitle = document.getElementById('onboardingSubtitle');
+            
+            // Check if user is already onboarded.
+            const userString = localStorage.getItem('fintrack_user');
+            const userData = userString ? JSON.parse(userString) : null;
+            if (userData && userData.hasOnboarded) {
+                // If user has completed onboarding, redirect them to the PIN validation page.
+                window.location.href = 'validate-pin.html';
+                return;
+            }
+
+            // Handle onboarding form submission
+            onboardingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const userName = document.getElementById('userName').value.trim();
+                const bankBalance = document.getElementById('bankBalance').value;
+
+                if (!userName || bankBalance === '') {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+
+                onboardingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                onboardingBtn.disabled = true;
+
+                let userData = JSON.parse(localStorage.getItem('fintrack_user') || '{}');
+                userData.name = userName;
+                userData.startingBalance = parseFloat(bankBalance);
+                localStorage.setItem('fintrack_user', JSON.stringify(userData));
+
+                setTimeout(() => {
+                    onboardingSection.classList.remove('active');
+                    pinSection.classList.add('active');
+                    progressStep1.classList.remove('active');
+                    progressStep2.classList.add('active');
+                    onboardingTitle.textContent = 'Set Your Secure PIN';
+                    onboardingSubtitle.textContent = 'This 4-digit PIN will be required for every login.';
+                    pinBtn.innerHTML = 'Create PIN <i class="fas fa-lock ms-2"></i>';
+                    pinBtn.disabled = false;
+                }, 500);
+            });
+
+            // Handle PIN form submission
+            pinForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const pin = document.getElementById('pinInput').value;
+                const confirmPin = document.getElementById('confirmPinInput').value;
+
+                if (pin !== confirmPin) {
+                    pinError.style.display = 'block';
+                    return;
+                }
+
+                pinError.style.display = 'none';
+                pinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating PIN...';
+                pinBtn.disabled = true;
+
+                let userData = JSON.parse(localStorage.getItem('fintrack_user') || '{}');
+                userData.pin = pin;
+                userData.hasOnboarded = true;
+                localStorage.setItem('fintrack_user', JSON.stringify(userData));
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

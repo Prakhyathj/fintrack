@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Smart Finance Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Root Variables */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --glow-primary: rgba(102, 126, 234, 0.4);
+            --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        
+        /* Navigation */
+        .navbar {
+            backdrop-filter: blur(25px);
+            background: var(--glass-bg) !important;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 12px 20px !important;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--success-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 16px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><rect x="5" y="40" width="12" height="20" fill="white" rx="2"/><rect x="25" y="25" width="12" height="35" fill="white" rx="2"/><rect x="45" y="15" width="12" height="45" fill="white" rx="2"/><rect x="65" y="5" width="12" height="55" fill="white" rx="2"/><path d="M15 35 L35 20 L55 10 L75 5" stroke="%23fbbf24" stroke-width="3" fill="none"/><polygon points="70,0 85,8 70,16" fill="%23fbbf24"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+        
+        @keyframes logoGlow {
+            0%, 100% { box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4); }
+            50% { box-shadow: 0 8px 35px rgba(30, 58, 138, 0.6); }
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero-content {
+            z-index: 2;
+        }
+        
+        .hero-logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-logo-icon {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            animation: heroLogoFloat 4s ease-in-out infinite;
+        }
+        
+        .hero-logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 48px;
+            height: 32px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><rect x="5" y="40" width="12" height="20" fill="white" rx="2"/><rect x="25" y="25" width="12" height="35" fill="white" rx="2"/><rect x="45" y="15" width="12" height="45" fill="white" rx="2"/><rect x="65" y="5" width="12" height="55" fill="white" rx="2"/><path d="M15 35 L35 20 L55 10 L75 5" stroke="%23fbbf24" stroke-width="3" fill="none"/><polygon points="70,0 85,8 70,16" fill="%23fbbf24"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        
+        @keyframes heroLogoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            font-weight: 400;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* Buttons */
+        .btn-modern {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+        }
+        
+        .btn-primary-modern {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 8px 32px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn-secondary-modern {
+            background: var(--glass-bg);
+            color: white;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(25px);
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-primary-modern:hover {
+            box-shadow: 0 20px 50px rgba(79, 172, 254, 0.6);
+        }
+        
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 0rem 0;
+            position: relative;
+        }
+        
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--glass-shadow);
+            color: white;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--glow-primary), var(--success-gradient), var(--glow-primary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: var(--success-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 12px;
+            background-color: rgba(79, 172, 254, 0.1);
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.1);
+            display: inline-block;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+        
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .feature-description {
+            opacity: 0.9;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 4rem 0 2rem 0;
+            margin-top: 5rem;
+        }
+        
+        .footer h5 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .footer a:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .footer .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .footer .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        
+        /* Modal Styles */
+        .modal-backdrop.show {
+            backdrop-filter: blur(8px);
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px 40px;
+            box-shadow: var(--glass-shadow);
+            color: white;
+        }
+        .modal-header, .modal-footer {
+            border: none;
+            padding: 0;
+        }
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+        }
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .google-sign-in-button {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: #4a4a4a;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .google-sign-in-button:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+            color: #212121;
+        }
+        .google-sign-in-button img {
+            width: 24px;
+            height: 24px;
+        }
+        .login-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.1rem; }
+            .hero-buttons { justify-content: center; }
+            .btn-modern { padding: 0.8rem 2rem; width: 100%; max-width: 300px; }
+            .feature-card { margin-bottom: 2rem; }
+            .modal-content { padding: 24px 20px; }
+        }
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2rem; }
+            .hero-logo-text { font-size: 2.5rem; }
+            .hero-logo-icon { width: 60px; height: 60px; }
+            .feature-card { padding: 2rem 1.5rem; }
+            .footer { padding: 3rem 0 2rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container"></div>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="logo-container">
+                    <div class="logo-icon"></div>
+                    <span class="logo-text">FinTrack</span>
+                </div>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginBtnNav">
+                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <div class="hero-logo mb-4">
+                    <div class="hero-logo-container">
+                        <div class="hero-logo-icon"></div>
+                    </div>
+                </div>
+                <h2 class="hero-title">Take Control of Your Finances</h2>
+                <p class="hero-subtitle">
+                    Track expenses, get investment insights, and build wealth with AI-powered recommendations
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-modern btn-primary-modern" id="getStartedBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-rocket me-2"></i>Get Started Free
+                    </button>
+                    <button class="btn btn-modern btn-secondary-modern" id="learnMoreBtn">
+                        <i class="fas fa-play me-2"></i>Learn More
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4 class="feature-title">Smart Analytics</h4>
+                        <p class="feature-description">
+                            AI-powered insights into your spending patterns with predictive analysis
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h4 class="feature-title">Investment Advice</h4>
+                        <p class="feature-description">
+                            Personalized investment suggestions based on your financial goals
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="feature-title">Real-time Tracking</h4>
+                        <p class="feature-description">
+                            Track expenses on-the-go with instant categorization and notifications
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="learnMoreModal" tabindex="-1" aria-labelledby="learnMoreModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="learnMoreModalLabel">About FinTrack</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4>What is FinTrack?</h4>
+                    <p>
+                        FinTrack is a smart finance management application designed to help you take control of your financial life.
+                        It provides tools for tracking your expenses, gaining insights into your spending habits, and making informed
+                        investment decisions.
+                    </p>
+                    <h4>Key Features</h4>
+                    <ul>
+                        <li><strong>Expense Tracking:</strong> Easily record and categorize your daily expenses.</li>
+                        <li><strong>Smart Analytics:</strong> AI-powered insights into your spending patterns.</li>
+                        <li><strong>Investment Advice:</strong> Personalized investment suggestions tailored to your financial goals.</li>
+                        <li><strong>Real-time Tracking:</strong> Monitor your finances on-the-go with instant notifications.</li>
+                        <li><strong>Budgeting Tools:</strong> Set budgets and track your progress towards your financial goals.</li>
+                    </ul>
+                    <h4>AI-Powered Insights</h4>
+                    <p>
+                        FinTrack uses advanced AI algorithms to analyze your financial data and provide you with valuable insights.
+                        It can identify areas where you can save money, suggest optimal investment strategies, and help you make
+                        smarter financial decisions.
+                    </p>
+                    <h4>Get Started Today!</h4>
+                    <p>
+                        Ready to take control of your finances? Sign up for FinTrack today and start building a brighter financial future.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary-modern" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary-modern" data-bs-toggle="modal" data-bs-target="#loginModal">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Welcome to FinTrack</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="login-info mb-4">Sign in with your Google account to get started.</p>
+                    <button id="googleSignInBtn" class="google-sign-in-button">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_of_Google_G_Suite.svg" alt="Google logo">
+                        Sign in with Google
+                    </button>
+                    <div class="mt-4" id="loadingMessage" style="display: none;">
+                        <p class="text-white-50"><i class="fas fa-spinner fa-spin me-2"></i> Checking your account...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <h5>About Us</h5>
+                    <p>FinTrack is a smart finance management application designed to help you take control of your financial life with AI-powered insights and analytics.</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact Us</h5>
+                    <p>Email: prakhyathjain20@gmail.com</p>
+                    <p>Phone: +91 7349526753</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Follow Us</h5>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/in/prakhyath-jain-a15031306/"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>More</h5>
+                    <p>Other links</p>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 2rem 0;">
+            <div class="text-center">
+                <p style="margin: 0; color: rgba(255, 255, 255, 0.7);">© 2024 FinTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            googleSignInBtn.addEventListener('click', function() {
+                googleSignInBtn.style.display = 'none';
+                loadingMessage.style.display = 'block';
+
+                setTimeout(() => {
+                    const userString = localStorage.getItem('fintrack_user');
+                    let user = userString ? JSON.parse(userString) : null;
+                    
+                    if (!user || !user.hasOnboarded) {
+                        user = {
+                            name: 'Demo User',
+                            email: 'demo@fintrack.com',
+                            hasOnboarded: false,
+                            startingBalance: 0,
+                            pin: null
+                        };
+                        localStorage.setItem('fintrack_user', JSON.stringify(user));
+                        window.location.href = 'onboarding.html';
+                    } else if (user.hasOnboarded) {
+                        window.location.href = 'validate-pin.html';
+                    }
+                }, 2000);
+            });
+
+            document.getElementById('learnMoreBtn').addEventListener('click', function() {
+                const learnMoreModal = new bootstrap.Modal(document.getElementById('learnMoreModal'));
+                learnMoreModal.show();
+            });
+        });
+    </script>
+</body>
+</html>m
